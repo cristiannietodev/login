@@ -1,0 +1,23 @@
+#login-form{
+	background: #2A3041;
+	padding: 25px 0px 5px 0px;
+}
+#caja-login {
+	border-radius: 6px;
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	margin-top: 10px;
+}
+input[type=text],input[type=password]
+{
+	border-radius: 6px;
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	padding: 8px;
+}
+#titulo{
+	text-align: center;
+}
+#panel{
+	margin-top: 60px;
+}

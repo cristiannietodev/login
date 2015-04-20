@@ -1,0 +1,29 @@
+extends layout
+ 
+block content
+  .well.span7.offset2  
+    h2 #{title}
+    #div_logout(style="text-align:right;")
+      a.btn.btn-danger(href="logout") Cerrar Sesión
+    table
+      thead
+        tr
+          th Id reporte
+          th Nombre reporte
+          th Detalle
+          th Cant. registros
+          th Usuario crea
+          th Opciones
+        tbody
+          if (reportes)
+            each reporte in reportes
+              tr
+                td #{reporte.idreporte}
+                td #{reporte.nombre}
+                td #{reporte.detalle}
+                td #{reporte.cantidadregistros}
+                td #{reporte.usuariocrea}
+                td 
+                  a(href="/eliminarreporte?idreporte=#{reporte.idreporte}") Eliminar reporte
+    
+  
