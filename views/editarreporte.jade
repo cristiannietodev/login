@@ -1,0 +1,42 @@
+extends layout
+
+block content
+  //ventana modal donde mostraremos los mensajes de error
+  #myModal.modal.fade(tabindex="-1",role="dialog",aria-labelledby="myModalLabel",aria-hidden="true")
+    .modal-header
+      h2.title-modal
+      hr
+      .modal-body
+        p.messageModal
+      .modal-footer
+        a.btn.btn-danger(data-dismiss="modal",aria-hidden="true") Cerrar
+  #login-form.well.span6.offset3
+    form(method="post",action="/editarreporte").form-horizontal()#editarReporte.well.span5   
+      h1 Actualizar reporte #{reporte.idreporte}
+      h6.subheading 
+      hr
+      div.control-group
+        label.control-label(for='nombrereporte') Nombre del reporte
+        div.controls
+          input(name="idreporte",id="idreporte",type="hidden",value="#{reporte.idreporte}")
+          input(name="nombrereporte",id="nombrereporte",type="text",value="#{reporte.nombre}",placeholder="Escribe el nombre del reporte",required).span3.username
+      div.control-group
+        label.control-label(for="detallereporte") Detalle reporte
+        div.controls
+          input(name="detallereporte",id="detallereporte",type="text",value="#{reporte.detalle}",placeholder="Escribe un detalle",required).span3.password
+      div.control-group
+        label.control-label(for="cantidadregistros") Cantidad registros reporte
+        div.controls
+            input(name="cantidadregistros",id="cantidadregistros",type="number",value="#{reporte.cantidadregistros}",placeholder="Ingrese cantidad registros",required).span3.password    
+      div.control-group
+        label.control-label(for="usuariocrea") Usuario crea
+        div.controls
+            input(name="usuariocrea",id="usuariocrea",type="text",value="#{reporte.usuariocrea}",placeholder="Usuario que crea el reporte",required).span3.password    
+      div.control-group
+        hr
+        label.control-label(for="singlebutton")
+        div.controls
+          button.btn.btn-large.btn-block.btn-primary() 
+            i.icon-lock.icon-white
+            |  Actualizar reporte
+    

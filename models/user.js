@@ -4,13 +4,13 @@
 */
 
 var sqlite3 = require('sqlite3').verbose(),//necesario para utilizar sqlite3
-db = new sqlite3.Database('blogNode'),//creamos la base de datos llamada blogNode si no existe
+db = new sqlite3.Database('acontar.db'),//creamos la base de datos llamada blogNode si no existe
 UserModel = {};//objeto para exportar y manejar la información del modelo
 
 db.serialize(function() {
 
-  db.run("CREATE TABLE if not exists usuarios (idusuario INTEGER ,nombre TEXT,apellidos TEXT,correo TEXT,username TEXT,password TEXT)");
-	db.run("CREATE TABLE if not exists reportes (idreporte INTEGER ,nombre TEXT)");
+  db.run("CREATE TABLE if not exists usuarios (idusuario INTEGER PRIMARY KEY ASC,nombre TEXT,apellidos TEXT,correo TEXT,username TEXT,password TEXT)");
+	db.run("CREATE TABLE if not exists reportes (idreporte INTEGER PRIMARY KEY ASC,nombre TEXT,detalle TEXT,cantidadregistros INTEGER,usuariocrea TEXT)");
 	db.run("CREATE TABLE if not exists usuarios_reportes (idusuario INTEGER,idreporte INTEGER)");
 
 	/*var stmt = db.prepare("INSERT INTO usuarios VALUES (?,?,?,?,?,?)");
@@ -69,7 +69,71 @@ UserModel.loginUser = function(userData, callback)
     });
 }
 
-//Consultamos los perfiles por usuario
+
+//hacemos login al usuario si existe en la tabla usuarios
+UserModel.insertarReporte = function(reportData, callback)
+{
+  var stmt = db.prepare("INSERT INTO reportes(nombre,detalle,cantidadregistros,usuariocrea) VALUES (?,?,?,?)");
+
+  //pasamos los parametros para insertar un re
+  stmt.bind(reportData.nombrereporte,reportData.detalle,reportData.cantidadregistros,reportData.usuariocrea);
+
+  stmt.run(function(error){
+    if(error)
+    {
+        throw err;
+    }
+    else
+    {
+      var stmt = db.prepare("INSERT INTO usuarios_reportes (idusuario,idreporte) VALUES (?,?)");
+      stmt.bind(reportData.idusuario,this.lastID);
+
+      stmt.run(function(error){
+        if(error)
+        {
+            throw err;
+        }
+        else
+        {
+          callback({msg:"reportecreado"});
+        }
+      });
+        //console.log(this.lastID);
+        //callback({msg:"reportes",data:row});
+    }
+  });
+
+  stmt.finalize();
+}
+
+
+//hacemos login al usuario si existe en la tabla usuarios
+UserModel.actualizarReporte = function(reportData, callback)
+{
+  var stmt = db.prepare("UPDATE reportes set nombre=?,detalle=?,cantidadregistros=?,usuariocrea=? WHERE idreporte=?");
+
+  //pasamos los parametros para insertar un re
+  stmt.bind(reportData.nombrereporte,reportData.detalle,reportData.cantidadregistros,reportData.usuariocrea,reportData.idreporte);
+
+  stmt.run(function(error){
+    if(error)
+    {
+        throw err;
+    }
+    else
+    {
+      callback({msg:"reporteactualizado"});
+      //console.log(this.lastID);
+      //callback({msg:"reportes",data:row});
+    }
+  });
+
+  stmt.finalize();
+}
+
+
+
+//Consultamos los reportes por usuario
 UserModel.getReportesIdusuario = function(userData, callback)
 {
   console.log("idusuario : "+userData.idusuario);
@@ -79,6 +143,34 @@ UserModel.getReportesIdusuario = function(userData, callback)
   stmt.bind(userData.idusuario);
   //usamos get para obtener una fila, así podemos devolver los datos del usuario
   stmt.all(function(error, row)
+  {
+    if(error)
+    {
+        throw err;
+    }
+    else
+    {
+        if(row)
+        {
+            callback({msg:"reportes",data:row});
+        }
+        else
+        {
+        	callback({msg:"error",data:""});
+        }
+    }
+  });
+}
+
+UserModel.getReportesIdreporte = function(reportData, callback)
+{
+  console.log("idreporte : "+reportData.idreporte);
+	//consultamos si existe el usuario y sus credenciales son correctas, así escapamos los datos
+	stmt = db.prepare("SELECT r.* FROM reportes r WHERE r.idreporte=?");
+	//pasamos el nombre del usuario y el password a la consulta
+  stmt.bind(reportData.idreporte);
+  //usamos get para obtener una fila, así podemos devolver los datos del usuario
+  stmt.get(function(error, row)
   {
     if(error)
     {

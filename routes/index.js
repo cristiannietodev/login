@@ -39,61 +39,73 @@ router.post("/login", function(req,res)
 	    		{
             req.session.username = req.body.username;
             req.session.idusuario = data.data.idusuario;
-  	    		UserModel.getReportesIdusuario({idusuario:data.data.idusuario},function(data)
-              {
-                  //console.log(data[0]);
-                  if(data)
-                  {
-                    if(data.msg === "error")
-          	    		{
-                      res.render('index',{msg_error: 'Datos ingresados incorrectos'});
-          	    		}
-                    else
-            	    	{
-                      res.render('reportes',{title: 'Lista de reportes',reportes:data.data});
-                      //res.send('Whee');
-                      //return res.render('reportes',{title: 'Lista de reportes',reportes:data});
-                    }
-                  }else{
-                    res.send("error", 400);
-                  }
-              });
+            res.redirect("/reportes");
               //req.session.username = req.body.username;
               //res.send("logueado", 200);
-            }
+          }
       }
   });
 });
 
 //recibimos la interaccion de cuando el usuario envia el formulario de login
 router.get("/eliminarreporte", function(req,res)
-    {
-      var idreporte = req.query.idreporte;
-      console.log("Id reporte : "+idreporte);
-      UserModel.deleteReporte(idreporte);
-      UserModel.getReportesIdusuario({idusuario:req.session.idusuario},function(data)
+{
+      var idreporte=req.query.idreporte;
+      UserModel.deleteReporte({idreporte:idreporte});
+      res.redirect("/reportes");
+});
+
+router.get("/rededitreporte",function(req,res)
+{
+  var idreporte=req.query.idreporte;
+  UserModel.getReportesIdreporte({idreporte:idreporte},function(data)
+  {
+      //console.log(data[0]);
+      if(data)
       {
-          //console.log(data[0]);
-          if(data)
-          {
-            if(data.msg === "error")
-            {
-              res.render('index',{msg_error: 'Datos ingresados incorrectos'});
-            }
-            else
-            {
-              res.render('reportes',{title: 'Lista de reportes',reportes:data.data});
-              //res.send('Whee');
-              //return res.render('reportes',{title: 'Lista de reportes',reportes:data});
-            }
-          }else{
-            res.send("error", 400);
-          }
-      });
+        if(data.msg === "error")
+        {
+          res.render('index',{msg_error: 'Datos ingresados incorrectos'});
+        }
+        else
+        {
+          res.render('editarreporte',{title: 'Actualizar reporte',reporte:data.data});
+          //res.send('Whee');
+          //return res.render('reportes',{title: 'Lista de reportes',reportes:data});
+        }
+      }else{
+        res.send("error", 400);
+      }
+  });
 
 });
 
+router.post("/editarreporte",function(req,res)
+{
+  var reporte={nombrereporte:req.body.nombrereporte,detalle:req.body.detallereporte,cantidadregistros:req.body.cantidadregistros,usuariocrea:req.body.usuariocrea,idreporte:req.body.idreporte};
+  console.log(reporte);
+  UserModel.actualizarReporte(reporte,function(data)
+  {
+    if(data)
+    {
+          if(data.msg === "error")
+          {
+            res.render('index',{msg_error: 'Datos ingresados incorrectos'});
+          }
+          else
+          {
+            res.redirect("/reportes");
+            //console.log('Exitoso');
+            //res.render('reportes',{title: 'Lista de reportes',reportes:data.data});
+            //res.send('Whee');
+            //return res.render('reportes',{title: 'Lista de reportes',reportes:data});
+          }
+    }else{
+        res.send("error", 400);
+    }
+  });
 
+});
 
 //mostramos la vista views/home.jade solo si el usuario ha iniciado sesion
 router.get("/home", function(req, res)
@@ -124,18 +136,80 @@ router.get("/reportes", function(req, res)
     //en otro caso mostramos el formulario
     else
     {
-        res.render('reportes', {
-            title: 'Bienvenido a nuestra aplicación',
-            username: req.session.username//asi accedemos a la sesion del usuario
+      UserModel.getReportesIdusuario({idusuario:req.session.idusuario},function(data)
+      {
+          //console.log(data[0]);
+          if(data)
+          {
+            if(data.msg === "error")
+            {
+              res.render('index',{msg_error: 'Datos ingresados incorrectos'});
+            }
+            else
+            {
+              res.render('reportes',{title: 'Lista de reportes',reportes:data.data});
+              //res.send('Whee');
+              //return res.render('reportes',{title: 'Lista de reportes',reportes:data});
+            }
+          }else{
+            res.send("error", 400);
+          }
+      });
+
+    }
+});
+
+//mostramos la vista views/home.jade solo si el usuario ha iniciado sesion
+router.get("/nuevoreporte", function(req, res)
+{
+    //si no existe la sesion del usuario redirigimos al login
+    if(!req.session.username)
+    {
+        res.redirect("/");
+    }
+    //en otro caso mostramos el formulario
+    else
+    {
+        res.render('nuevoreporte', {
+            title: 'Crear un nuevo reporte'
         });
     }
 });
+
+
+//recibimos la interaccion de cuando el usuario envia el formulario de creacion de reporte
+router.post("/crearreportes", function(req,res)
+{
+  var reporte={nombrereporte:req.body.nombrereporte,detalle:req.body.detallereporte,cantidadregistros:req.body.cantidadregistros,usuariocrea:req.body.usuariocrea,idusuario:req.session.idusuario};
+  console.log(reporte);
+  UserModel.insertarReporte(reporte,function(data)
+  {
+    if(data)
+    {
+          if(data.msg === "error")
+          {
+            res.render('index',{msg_error: 'Datos ingresados incorrectos'});
+          }
+          else
+          {
+            res.redirect("/reportes");
+            //console.log('Exitoso');
+            //res.render('reportes',{title: 'Lista de reportes',reportes:data.data});
+            //res.send('Whee');
+            //return res.render('reportes',{title: 'Lista de reportes',reportes:data});
+          }
+    }else{
+        res.send("error", 400);
+    }
+  });
+});
+
 
 //cerramos la sesión del usuario y redirigimos al formulario de login
 router.get("/logout", function(req,res)
 {
 	req.session.destroy();
 	res.redirect("/");
-})
+});
 
 module.exports = router;

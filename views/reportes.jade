@@ -5,7 +5,9 @@ block content
     h2 #{title}
     #div_logout(style="text-align:right;")
       a.btn.btn-danger(href="logout") Cerrar Sesión
-    table
+    #div_new_report(style="text-align:left;")
+        a.btn.btn-primary(href="nuevoreporte") Nuevo reporte
+    table.table.table-hover
       thead
         tr
           th Id reporte
@@ -23,7 +25,11 @@ block content
                 td #{reporte.detalle}
                 td #{reporte.cantidadregistros}
                 td #{reporte.usuariocrea}
-                td 
-                  a(href="/eliminarreporte?idreporte=#{reporte.idreporte}") Eliminar reporte
+                td
+                  a(href="/rededitreporte?idreporte=#{reporte.idreporte}",title="Editar reporte")
+                    i.icon-pencil.icon-2x
+                  a(href="/eliminarreporte?idreporte=#{reporte.idreporte}",title="Eliminar reporte")
+                    i.icon-remove.icon-2x
+                      
     
   
