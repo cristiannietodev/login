@@ -176,6 +176,15 @@ router.get("/nuevoreporte", function(req, res)
     }
 });
 
+//mostramos la vista views/home.jade solo si el usuario ha iniciado sesion
+router.get("/register", function(req, res)
+{
+    res.render('register', {
+            title: 'Registrar usuario'
+    });
+
+});
+
 
 //recibimos la interaccion de cuando el usuario envia el formulario de creacion de reporte
 router.post("/crearreportes", function(req,res)
@@ -201,6 +210,30 @@ router.post("/crearreportes", function(req,res)
     }else{
         res.send("error", 400);
     }
+  });
+});
+
+//recibimos la interaccion de cuando el usuario envia el formulario de registro
+router.post("/register", function(req,res)
+  {
+    var usuario={nombre:req.body.nombre,apellido:req.body.apellido,correo:req.body.correo,username:req.body.username,password:req.body.password};
+      UserModel.registerUser(usuario, function(data)
+        {
+          if(data){
+    	    		//si el usuario ya existia en la bd
+    	    		if(data.msg === "existe")
+    	    		{
+    	    			res.send("existe", 200);
+    	    		}
+	    		else
+	    		{
+	    			res.send("creado", 200);
+	    		}
+	    	}
+	    	else
+	    	{
+	    		res.send("error", 400);
+	    	}
   });
 });
 
